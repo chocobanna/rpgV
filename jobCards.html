@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Cards with Selection</title>
+    <style>
+        /* CSS for Card Container */
+        .card-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            padding: 20px;
+            justify-content: center;
+        }
+
+        /* CSS for Individual Card */
+        .card {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            width: 150px; /* Reduced width */
+            overflow: hidden;
+            text-align: center;
+            transition: transform 0.2s ease-in-out, border 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+            cursor: pointer; /* Pointer cursor on hover */
+        }
+
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .card.selected {
+            border: 2px solid #28a745; /* Green outline for selected card */
+            background-color: #e6ffe6; /* Light green background for selected card */
+            transform: scale(1.05); /* Slight zoom effect for selected card */
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .card img {
+            width: 100%;
+            height: auto;
+        }
+
+        .card-content {
+            padding: 10px; /* Reduced padding */
+        }
+
+        .card-title {
+            font-size: 1.2em; /* Smaller font size */
+            margin-bottom: 5px; /* Reduced margin */
+        }
+
+        .card-description {
+            color: #666;
+            font-size: 0.8em; /* Smaller font size */
+        }
+
+        /* Confirm Button */
+        .confirm-button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 1em;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            transition: background-color 0.3s ease;
+        }
+
+        .confirm-button:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+    <div class="card-container" id="cardContainer">
+        <!-- Job cards will be dynamically added here -->
+    </div>
+
+    <button class="confirm-button" id="confirmButton">Confirm Job Selection</button>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Example jobs data
+            const jobsData = [
+                { job: "Warrior", description: "Strong and brave fighters.", imageUrl: "https://via.placeholder.com/150x100" },
+                { job: "Mage", description: "Masters of magical arts.", imageUrl: "https://via.placeholder.com/150x100" },
+                { job: "Archer", description: "Expert marksmen with a bow.", imageUrl: "https://via.placeholder.com/150x100" },
+                { job: "Rogue", description: "Stealthy and cunning.", imageUrl: "https://via.placeholder.com/150x100" },
+                { job: "Cleric", description: "Healers and protectors.", imageUrl: "https://via.placeholder.com/150x100" },
+                { job: "Paladin", description: "Holy warriors with divine powers.", imageUrl: "https://via.placeholder.com/150x100" },
+                { job: "Bard", description: "Charismatic performers with magic.", imageUrl: "https://via.placeholder.com/150x100" },
+                { job: "Necromancer", description: "Dark mages commanding the undead.", imageUrl: "https://via.placeholder.com/150x100" },
+                { job: "Druid", description: "Nature's guardians with shapeshifting abilities.", imageUrl: "https://via.placeholder.com/150x100" },
+                { job: "Monk", description: "Martial artists with spiritual powers.", imageUrl: "https://via.placeholder.com/150x100" },
+                { job: "Sorcerer", description: "Born with innate magical abilities.", imageUrl: "https://via.placeholder.com/150x100" },
+                { job: "Ranger", description: "Wilderness experts with animal companions.", imageUrl: "https://via.placeholder.com/150x100" },
+                { job: "Warlock", description: "Dealers of dark pacts for power.", imageUrl: "https://via.placeholder.com/150x100" },
+                { job: "Alchemist", description: "Masters of potions and transmutations.", imageUrl: "https://via.placeholder.com/150x100" },
+                { job: "Barbarian", description: "Fierce warriors with unstoppable rage.", imageUrl: "https://via.placeholder.com/150x100" },
+                { job: "Shaman", description: "Spiritual leaders with elemental magic.", imageUrl: "https://via.placeholder.com/150x100" },
+                { job: "Assassin", description: "Deadly killers skilled in stealth.", imageUrl: "https://via.placeholder.com/150x100" },
+                { job: "Berserker", description: "Uncontrolled fury in battle.", imageUrl: "https://via.placeholder.com/150x100" },
+                { job: "Knight", description: "Armored fighters upholding honor.", imageUrl: "https://via.placeholder.com/150x100" },
+                { job: "Enchanter", description: "Specialists in magical enchantments.", imageUrl: "https://via.placeholder.com/150x100" }
+            ];
+
+            let selectedCard = null;
+
+            function addJobCard(job, description, imageUrl) {
+                const cardContainer = document.getElementById('cardContainer');
+
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.addEventListener('click', function () {
+                    if (selectedCard) selectedCard.classList.remove('selected');
+                    card.classList.add('selected');
+                    selectedCard = card;
+                    localStorage.setItem('selectedJob', job);
+                });
+
+                const img = document.createElement('img');
+                img.src = imageUrl;
+                img.alt = `${job} Image`;
+
+                const cardContent = document.createElement('div');
+                cardContent.className = 'card-content';
+
+                const cardTitle = document.createElement('h2');
+                cardTitle.className = 'card-title';
+                cardTitle.textContent = job;
+
+                const cardDescription = document.createElement('p');
+                cardDescription.className = 'card-description';
+                cardDescription.textContent = description;
+
+                cardContent.appendChild(cardTitle);
+                cardContent.appendChild(cardDescription);
+
+                card.appendChild(img);
+                card.appendChild(cardContent);
+
+                cardContainer.appendChild(card);
+            }
+
+            jobsData.forEach(job => addJobCard(job.job, job.description, job.imageUrl));
+
+            const savedJob = localStorage.getItem('selectedJob');
+            if (savedJob) {
+                const savedCard = Array.from(document.getElementsByClassName('card')).find(card => card.querySelector('.card-title').textContent.includes(savedJob));
+                if (savedCard) {
+                    savedCard.classList.add('selected');
+                    selectedCard = savedCard;
+                }
+            }
+
+            document.getElementById('confirmButton').addEventListener('click', function () {
+                if (selectedCard) {
+                    window.location.href = 'attributes.html'; // Redirect to the attributes page
+                } else {
+                    alert('Please select a job before confirming.');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

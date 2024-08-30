@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Character Backstory</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .backstory-container {
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .backstory-option {
+            padding: 15px;
+            width: 300px;
+            border: 2px solid #ccc;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+
+        .backstory-option:hover {
+            background-color: #f0f0f0;
+        }
+
+        .backstory-option.selected {
+            border-color: #007BFF;
+            background-color: #e0f7ff;
+        }
+
+        .confirm-button {
+            margin-top: 30px;
+            padding: 10px 20px;
+            font-size: 1em;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .confirm-button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>Choose Your Backstory</h1>
+
+    <div class="backstory-container">
+        <div class="backstory-option" id="backstory1">
+            <h2>Orphaned at a Young Age</h2>
+            <p>You grew up in a bustling city, learning to survive on the streets. This hardship has made you tough and resourceful.</p>
+        </div>
+        <div class="backstory-option" id="backstory2">
+            <h2>Noble Heritage</h2>
+            <p>Born into a wealthy family, you received the finest education and training. Your lineage gives you a commanding presence.</p>
+        </div>
+        <div class="backstory-option" id="backstory3">
+            <h2>Mysterious Stranger</h2>
+            <p>Little is known about your past. Some say you appeared out of nowhere, carrying secrets that could change the world.</p>
+        </div>
+    </div>
+
+    <button class="confirm-button" id="confirmBackstoryButton" disabled>Confirm Backstory</button>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            let selectedBackstory = null;
+            const confirmButton = document.getElementById('confirmBackstoryButton');
+
+            document.querySelectorAll('.backstory-option').forEach(option => {
+                option.addEventListener('click', function () {
+                    if (selectedBackstory) {
+                        selectedBackstory.classList.remove('selected');
+                    }
+                    option.classList.add('selected');
+                    selectedBackstory = option;
+                    localStorage.setItem('selectedBackstory', option.id);
+                    confirmButton.disabled = false;
+                });
+            });
+
+            confirmButton.addEventListener('click', function () {
+                alert(`You have selected the backstory: ${selectedBackstory.querySelector('h2').textContent}`);
+                // Redirect or perform another action here
+            });
+        });
+    </script>
+</body>
+</html>
