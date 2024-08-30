@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Race Cards with Selection and Save Feature</title>
+    <style>
+        /* CSS for Card Container */
+        .card-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            padding: 20px;
+            justify-content: center;
+        }
+
+        /* CSS for Individual Card */
+        .card {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            width: 150px; /* Reduced width */
+            overflow: hidden;
+            text-align: center;
+            transition: transform 0.2s ease-in-out, border 0.2s ease-in-out;
+            cursor: pointer; /* Pointer cursor on hover */
+        }
+
+        .card:hover {
+            transform: translateY(-3px);
+        }
+
+        .card.selected {
+            border: 2px solid #007BFF; /* Outline for selected card */
+        }
+
+        .card img {
+            width: 100%;
+            height: auto;
+        }
+
+        .card-content {
+            padding: 10px; /* Reduced padding */
+        }
+
+        .card-title {
+            font-size: 1.2em; /* Smaller font size */
+            margin-bottom: 5px; /* Reduced margin */
+        }
+
+        .card-description {
+            color: #666;
+            font-size: 0.8em; /* Smaller font size */
+        }
+
+        /* Style for the checkbox */
+        .checkbox-container {
+            margin-top: 5px;
+        }
+
+        .checkbox-container label {
+            margin-left: 5px;
+            font-size: 0.8em; /* Smaller font size */
+        }
+
+        /* Confirm Button */
+        .confirm-button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 1em;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .confirm-button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="card-container" id="cardContainer">
+        <!-- Cards will be dynamically added here -->
+    </div>
+
+    <button class="confirm-button" id="confirmButton">Confirm Selection</button>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Example races data
+            const racesData = [
+                {
+                    race: "Elf",
+                    description: "Elves are known for their grace and magic.",
+                    imageUrl: "https://via.placeholder.com/150x100",
+                    isHighVersion: false
+                },
+                {
+                    race: "Orc",
+                    description: "Orcs are powerful and warlike.",
+                    imageUrl: "https://via.placeholder.com/150x100",
+                    isHighVersion: false
+                },
+                {
+                    race: "Dwarf",
+                    description: "Dwarves are strong and skilled miners.",
+                    imageUrl: "https://via.placeholder.com/150x100",
+                    isHighVersion: false
+                },
+                {
+                    race: "Human",
+                    description: "Humans are versatile and adaptive.",
+                    imageUrl: "https://via.placeholder.com/150x100",
+                    isHighVersion: false
+                },
+                {
+                    race: "Troll",
+                    description: "Trolls are large, fearsome creatures.",
+                    imageUrl: "https://via.placeholder.com/150x100",
+                    isHighVersion: false
+                }
+            ];
+
+            let selectedCard = null;
+
+            function addRaceCard(race, description, imageUrl, isHighVersion) {
+                const cardContainer = document.getElementById('cardContainer');
+
+                // Create card element
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.addEventListener('click', function () {
+                    if (selectedCard) {
+                        selectedCard.classList.remove('selected');
+                    }
+                    card.classList.add('selected');
+                    selectedCard = card;
+                    localStorage.setItem('selectedRace', race);
+                });
+
+                // Card image
+                const img = document.createElement('img');
+                img.src = imageUrl;
+                img.alt = `${race} Image`;
+
+                // Card content
+                const cardContent = document.createElement('div');
+                cardContent.className = 'card-content';
+
+                const cardTitle = document.createElement('h2');
+                cardTitle.className = 'card-title';
+                cardTitle.textContent = isHighVersion ? `High ${race}` : race;
+
+                const cardDescription = document.createElement('p');
+                cardDescription.className = 'card-description';
+                cardDescription.textContent = description;
+
+                // Checkbox to set high version
+                const checkboxContainer = document.createElement('div');
+                checkboxContainer.className = 'checkbox-container';
+
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.id = `high-${race}`;
+                checkbox.checked = isHighVersion;
+                checkbox.addEventListener('change', function () {
+                    cardTitle.textContent = this.checked ? `High ${race}` : race;
+                });
+
+                const checkboxLabel = document.createElement('label');
+                checkboxLabel.setAttribute('for', `high-${race}`);
+                checkboxLabel.textContent = 'High Version';
+
+                // Append checkbox to container
+                checkboxContainer.appendChild(checkbox);
+                checkboxContainer.appendChild(checkboxLabel);
+
+                // Append content to card
+                cardContent.appendChild(cardTitle);
+                cardContent.appendChild(cardDescription);
+                cardContent.appendChild(checkboxContainer);
+
+                // Append elements to card
+                card.appendChild(img);
+                card.appendChild(cardContent);
+
+                // Append card to container
+                cardContainer.appendChild(card);
+            }
+
+            // Dynamically add race cards from the data array
+            racesData.forEach(race => {
+                addRaceCard(race.race, race.description, race.imageUrl, race.isHighVersion);
+            });
+
+            // Load previously selected race from local storage
+            const savedRace = localStorage.getItem('selectedRace');
+            if (savedRace) {
+                const savedCard = document.querySelector(`.card:has(h2:contains('${savedRace}'))`);
+                if (savedCard) {
+                    savedCard.classList.add('selected');
+                    selectedCard = savedCard;
+                }
+            }
+
+            // Confirm button action
+            document.getElementById('confirmButton').addEventListener('click', function () {
+                if (selectedCard) {
+                    alert(`You have selected: ${selectedCard.querySelector('.card-title').textContent}`);
+                } else {
+                    alert('Please select a race before confirming.');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
