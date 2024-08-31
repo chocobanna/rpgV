@@ -90,11 +90,6 @@
         .button:hover {
             background-color: #0056b3;
         }
-
-        .button[disabled] {
-            background-color: #ccc;
-            cursor: not-allowed;
-        }
     </style>
 </head>
 <body>
@@ -151,8 +146,8 @@
     </div>
 
     <div class="navigation-buttons">
-        <button class="button" id="backstoryButton" disabled>Go to Backstory</button>
-        <button class="button" id="skillsButton" disabled>Go to Skills</button>
+        <button class="button" id="backstoryButton">Go to Backstory</button>
+        <button class="button" id="skillsButton">Go to Skills</button>
     </div>
 
     <script>
@@ -179,7 +174,7 @@
                     pointsRemaining -= change;
                     document.getElementById(attribute).value = attributes[attribute];
                     pointsRemainingDisplay.textContent = pointsRemaining;
-                    toggleButtons();
+                    saveCharacterData();
                 }
             }
 
@@ -194,21 +189,36 @@
             document.getElementById('increase-charisma').addEventListener('click', () => updatePoints('charisma', 1));
             document.getElementById('decrease-charisma').addEventListener('click', () => updatePoints('charisma', -1));
 
-            nameInput.addEventListener('input', toggleButtons);
+            nameInput.addEventListener('input', saveCharacterData);
 
-            function toggleButtons() {
-                const nameEntered = nameInput.value.trim().length > 0;
-                const pointsValid = pointsRemaining === 0;
-                backstoryButton.disabled = !(nameEntered && pointsValid);
-                skillsButton.disabled = !(nameEntered && pointsValid);
+            // Load saved character data
+            const savedCharacter = JSON.parse(localStorage.getItem('character')) || {};
+            if (savedCharacter.name) {
+                nameInput.value = savedCharacter.name;
+            }
+            if (savedCharacter.attributes) {
+                Object.keys(savedCharacter.attributes).forEach(attr => {
+                    document.getElementById(attr).value = savedCharacter.attributes[attr];
+                    attributes[attr] = savedCharacter.attributes[attr];
+                    pointsRemaining -= attributes[attr];
+                });
+                pointsRemainingDisplay.textContent = pointsRemaining;
+            }
+
+            function saveCharacterData() {
+                const characterData = {
+                    name: nameInput.value.trim(),
+                    attributes
+                };
+                localStorage.setItem('character', JSON.stringify(characterData));
             }
 
             backstoryButton.addEventListener('click', function () {
-                window.location.href = 'backstory.html'; // Redirect to the backstory page
+                window.location.href = 'backstory.html';
             });
 
             skillsButton.addEventListener('click', function () {
-                alert("Navigating to Skills Page..."); // Placeholder for future redirection to the skills page
+                window.location.href = 'skills.html';
             });
         });
     </script>
