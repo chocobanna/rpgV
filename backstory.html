@@ -70,6 +70,27 @@
             <h2>Mysterious Stranger</h2>
             <p>Little is known about your past. Some say you appeared out of nowhere, carrying secrets that could change the world.</p>
         </div>
+        <div class="backstory-option" id="backstory4">
+            <h2>Desert Wanderer</h2>
+            <p>Having grown up in the harsh deserts, you are resilient and resourceful, accustomed to surviving with little.</p>
+        </div>
+        <div class="backstory-option" id="backstory5">
+            <h2>Arcane Scholar</h2>
+            <p>You spent years studying ancient texts and mastering the arcane arts. Knowledge is your greatest weapon.</p>
+        </div>
+        <div class="backstory-option" id="backstory6">
+            <h2>Outcast from a Distant Land</h2>
+            <p>Banished from your homeland for reasons unknown, you wander the world seeking redemption and a place to call home.</p>
+        </div>
+        <div class="backstory-option" id="backstory7">
+            <h2>Seafaring Adventurer</h2>
+            <p>Born on the high seas, you have sailed across the oceans and know the secrets of the tides and the stars.</p>
+        </div>
+        <div class="backstory-option" id="backstory8">
+            <h2>Mountain Hermit</h2>
+            <p>Living in isolation in the mountains has taught you the secrets of nature and the strength of solitude.</p>
+        </div>
+        
     </div>
 
     <button class="confirm-button" id="confirmBackstoryButton" disabled>Confirm Backstory</button>
@@ -79,6 +100,17 @@
             let selectedBackstory = null;
             const confirmButton = document.getElementById('confirmBackstoryButton');
 
+            // Load saved character data
+            const savedCharacter = JSON.parse(localStorage.getItem('character')) || {};
+            if (savedCharacter.backstory) {
+                const savedOption = document.getElementById(savedCharacter.backstory);
+                if (savedOption) {
+                    savedOption.classList.add('selected');
+                    selectedBackstory = savedOption;
+                    confirmButton.disabled = false;
+                }
+            }
+
             document.querySelectorAll('.backstory-option').forEach(option => {
                 option.addEventListener('click', function () {
                     if (selectedBackstory) {
@@ -86,14 +118,14 @@
                     }
                     option.classList.add('selected');
                     selectedBackstory = option;
-                    localStorage.setItem('selectedBackstory', option.id);
+                    localStorage.setItem('character', JSON.stringify({ ...savedCharacter, backstory: option.id }));
                     confirmButton.disabled = false;
                 });
             });
 
             confirmButton.addEventListener('click', function () {
                 alert(`You have selected the backstory: ${selectedBackstory.querySelector('h2').textContent}`);
-                // Redirect or perform another action here
+                window.location.href = 'attributes.html'; // Redirect back to the attributes page
             });
         });
     </script>
