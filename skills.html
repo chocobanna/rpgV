@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Character Skills</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .skills-container {
+            margin-top: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .skill-option {
+            padding: 10px;
+            width: 150px;
+            border: 2px solid #ccc;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+            text-align: center;
+        }
+
+        .skill-option:hover {
+            background-color: #f0f0f0;
+        }
+
+        .skill-option.selected {
+            border-color: #28a745;
+            background-color: #e6ffe6;
+        }
+
+        .confirm-button {
+            margin-top: 30px;
+            padding: 10px 20px;
+            font-size: 1em;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .confirm-button:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+    <h1>Choose Your Skills</h1>
+
+    <div class="skills-container">
+        <div class="skill-option" id="skill1">Swordsmanship</div>
+        <div class="skill-option" id="skill2">Archery</div>
+        <div class="skill-option" id="skill3">Alchemy</div>
+        <div class="skill-option" id="skill4">Stealth</div>
+        <div class="skill-option" id="skill5">Fire Magic</div>
+        <div class="skill-option" id="skill6">Water Magic</div>
+        <div class="skill-option" id="skill7">Earth Magic</div>
+        <div class="skill-option" id="skill8">Air Magic</div>
+        <div class="skill-option" id="skill9">Healing</div>
+        <div class="skill-option" id="skill10">Bardic Inspiration</div>
+        <div class="skill-option" id="skill11">Necromancy</div>
+        <div class="skill-option" id="skill12">Enchanting</div>
+        <div class="skill-option" id="skill13">Blacksmithing</div>
+        <div class="skill-option" id="skill14">Potion Brewing</div>
+        <div class="skill-option" id="skill15">Animal Handling</div>
+        <div class="skill-option" id="skill16">Survival</div>
+        <div class="skill-option" id="skill17">Pickpocketing</div>
+        <div class="skill-option" id="skill18">Cooking</div>
+        <div class="skill-option" id="skill19">Herbalism</div>
+        <div class="skill-option" id="skill20">Divination</div>
+        <div class="skill-option" id="skill21">Illusion Magic</div>
+        <div class="skill-option" id="skill22">Martial Arts</div>
+        <div class="skill-option" id="skill23">Lockpicking</div>
+        <div class="skill-option" id="skill24">Elemental Mastery</div>
+        <div class="skill-option" id="skill25">Beast Mastery</div>
+        <div class="skill-option" id="skill26">Herbalism</div>
+        <div class="skill-option" id="skill27">Shield Defense</div>
+        <div class="skill-option" id="skill28">Dual Wielding</div>
+        <div class="skill-option" id="skill29">Summoning</div>
+        <div class="skill-option" id="skill30">Arcane Knowledge</div>
+        <div class="skill-option" id="skill31">Elemental Resistance</div>
+        <div class="skill-option" id="skill32">Heavy Armor Proficiency</div>
+        <div class="skill-option" id="skill33">Light Armor Proficiency</div>
+        <div class="skill-option" id="skill34">Dagger Proficiency</div>
+        <div class="skill-option" id="skill35">Greatsword Mastery</div>
+        <div class="skill-option" id="skill36">Ranged Combat</div>
+        <div class="skill-option" id="skill37">Tactical Analysis</div>
+        <div class="skill-option" id="skill38">Combat Medic</div>
+        <div class="skill-option" id="skill39">Berserker Rage</div>
+        <div class="skill-option" id="skill40">Shadow Step</div>
+        <div class="skill-option" id="skill41">Mental Fortitude</div>
+        <div class="skill-option" id="skill42">Enchant Weapon</div>
+        <div class="skill-option" id="skill43">Mystic Shield</div>
+        <div class="skill-option" id="skill44">Frost Magic</div>
+        <div class="skill-option" id="skill45">Lightning Strike</div>
+        <div class="skill-option" id="skill46">Poison Crafting</div>
+        <div class="skill-option" id="skill47">Trap Setting</div>
+        <div class="skill-option" id="skill48">Mind Control</div>
+
+    </div>
+
+    <button class="confirm-button" id="confirmSkillsButton" disabled>Confirm Skills</button>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const selectedSkills = new Set();
+            const confirmButton = document.getElementById('confirmSkillsButton');
+
+            // Load saved character data
+            const savedCharacter = JSON.parse(localStorage.getItem('character')) || {};
+            if (savedCharacter.skills) {
+                savedCharacter.skills.forEach(skillId => {
+                    const skillElement = document.getElementById(skillId);
+                    if (skillElement) {
+                        skillElement.classList.add('selected');
+                        selectedSkills.add(skillId);
+                    }
+                });
+                toggleConfirmButton();
+            }
+
+            document.querySelectorAll('.skill-option').forEach(option => {
+                option.addEventListener('click', function () {
+                    if (selectedSkills.has(option.id)) {
+                        selectedSkills.delete(option.id);
+                        option.classList.remove('selected');
+                    } else {
+                        selectedSkills.add(option.id);
+                        option.classList.add('selected');
+                    }
+                    toggleConfirmButton();
+                    saveCharacterData();
+                });
+            });
+
+            function toggleConfirmButton() {
+                confirmButton.disabled = selectedSkills.size === 0;
+            }
+
+            function saveCharacterData() {
+                localStorage.setItem('character', JSON.stringify({ ...savedCharacter, skills: Array.from(selectedSkills) }));
+            }
+
+            confirmButton.addEventListener('click', function () {
+                alert(`You have selected ${selectedSkills.size} skill(s): ${Array.from(selectedSkills).map(id => document.getElementById(id).textContent).join(', ')}`);
+                window.location.href = 'attributes.html'; // Redirect back to the attributes page
+            });
+        });
+    </script>
+</body>
+</html>
