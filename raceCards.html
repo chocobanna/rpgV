@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Race Cards with Selection and Save Feature</title>
+    <title>Race Cards with Selection and Redirect</title>
     <style>
         /* CSS for Card Container */
         .card-container {
@@ -22,16 +22,20 @@
             width: 150px; /* Reduced width */
             overflow: hidden;
             text-align: center;
-            transition: transform 0.2s ease-in-out, border 0.2s ease-in-out;
+            transition: transform 0.2s ease-in-out, border 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
             cursor: pointer; /* Pointer cursor on hover */
         }
 
         .card:hover {
             transform: translateY(-3px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
 
         .card.selected {
             border: 2px solid #007BFF; /* Outline for selected card */
+            background-color: #e0f0ff; /* Light blue background for selected card */
+            transform: scale(1.05); /* Slight zoom effect for selected card */
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
         }
 
         .card img {
@@ -76,6 +80,7 @@
             display: block;
             margin-left: auto;
             margin-right: auto;
+            transition: background-color 0.3s ease;
         }
 
         .confirm-button:hover {
@@ -94,36 +99,11 @@
         document.addEventListener("DOMContentLoaded", function () {
             // Example races data
             const racesData = [
-                {
-                    race: "Elf",
-                    description: "Elves are known for their grace and magic.",
-                    imageUrl: "https://via.placeholder.com/150x100",
-                    isHighVersion: false
-                },
-                {
-                    race: "Orc",
-                    description: "Orcs are powerful and warlike.",
-                    imageUrl: "https://via.placeholder.com/150x100",
-                    isHighVersion: false
-                },
-                {
-                    race: "Dwarf",
-                    description: "Dwarves are strong and skilled miners.",
-                    imageUrl: "https://via.placeholder.com/150x100",
-                    isHighVersion: false
-                },
-                {
-                    race: "Human",
-                    description: "Humans are versatile and adaptive.",
-                    imageUrl: "https://via.placeholder.com/150x100",
-                    isHighVersion: false
-                },
-                {
-                    race: "Troll",
-                    description: "Trolls are large, fearsome creatures.",
-                    imageUrl: "https://via.placeholder.com/150x100",
-                    isHighVersion: false
-                }
+                { race: "Elf", description: "Elves are known for their grace and magic.", imageUrl: "https://via.placeholder.com/150x100", isHighVersion: false },
+                { race: "Orc", description: "Orcs are powerful and warlike.", imageUrl: "https://via.placeholder.com/150x100", isHighVersion: false },
+                { race: "Dwarf", description: "Dwarves are strong and skilled miners.", imageUrl: "https://via.placeholder.com/150x100", isHighVersion: false },
+                { race: "Human", description: "Humans are versatile and adaptive.", imageUrl: "https://via.placeholder.com/150x100", isHighVersion: false },
+                { race: "Troll", description: "Trolls are large, fearsome creatures.", imageUrl: "https://via.placeholder.com/150x100", isHighVersion: false }
             ];
 
             let selectedCard = null;
@@ -131,24 +111,19 @@
             function addRaceCard(race, description, imageUrl, isHighVersion) {
                 const cardContainer = document.getElementById('cardContainer');
 
-                // Create card element
                 const card = document.createElement('div');
                 card.className = 'card';
                 card.addEventListener('click', function () {
-                    if (selectedCard) {
-                        selectedCard.classList.remove('selected');
-                    }
+                    if (selectedCard) selectedCard.classList.remove('selected');
                     card.classList.add('selected');
                     selectedCard = card;
                     localStorage.setItem('selectedRace', race);
                 });
 
-                // Card image
                 const img = document.createElement('img');
                 img.src = imageUrl;
                 img.alt = `${race} Image`;
 
-                // Card content
                 const cardContent = document.createElement('div');
                 cardContent.className = 'card-content';
 
@@ -160,7 +135,6 @@
                 cardDescription.className = 'card-description';
                 cardDescription.textContent = description;
 
-                // Checkbox to set high version
                 const checkboxContainer = document.createElement('div');
                 checkboxContainer.className = 'checkbox-container';
 
@@ -176,42 +150,33 @@
                 checkboxLabel.setAttribute('for', `high-${race}`);
                 checkboxLabel.textContent = 'High Version';
 
-                // Append checkbox to container
                 checkboxContainer.appendChild(checkbox);
                 checkboxContainer.appendChild(checkboxLabel);
 
-                // Append content to card
                 cardContent.appendChild(cardTitle);
                 cardContent.appendChild(cardDescription);
                 cardContent.appendChild(checkboxContainer);
 
-                // Append elements to card
                 card.appendChild(img);
                 card.appendChild(cardContent);
 
-                // Append card to container
                 cardContainer.appendChild(card);
             }
 
-            // Dynamically add race cards from the data array
-            racesData.forEach(race => {
-                addRaceCard(race.race, race.description, race.imageUrl, race.isHighVersion);
-            });
+            racesData.forEach(race => addRaceCard(race.race, race.description, race.imageUrl, race.isHighVersion));
 
-            // Load previously selected race from local storage
             const savedRace = localStorage.getItem('selectedRace');
             if (savedRace) {
-                const savedCard = document.querySelector(`.card:has(h2:contains('${savedRace}'))`);
+                const savedCard = Array.from(document.getElementsByClassName('card')).find(card => card.querySelector('.card-title').textContent.includes(savedRace));
                 if (savedCard) {
                     savedCard.classList.add('selected');
                     selectedCard = savedCard;
                 }
             }
 
-            // Confirm button action
             document.getElementById('confirmButton').addEventListener('click', function () {
                 if (selectedCard) {
-                    alert(`You have selected: ${selectedCard.querySelector('.card-title').textContent}`);
+                    window.location.href = 'jobCards.html'; // Redirect to the job cards selection
                 } else {
                     alert('Please select a race before confirming.');
                 }
