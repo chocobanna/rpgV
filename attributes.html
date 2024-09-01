@@ -9,9 +9,14 @@
             font-family: Arial, sans-serif;
             padding: 20px;
             text-align: center;
+            transition: opacity 0.5s ease; /* Animation for fade effect */
         }
 
-        .attribute-container {
+        .fade-out {
+            opacity: 0; /* Fades out when the reset is triggered */
+        }
+
+        .attribute-container, .name-input, .navigation-buttons {
             margin-top: 20px;
             display: flex;
             justify-content: center;
@@ -56,23 +61,10 @@
             background-color: #0056b3;
         }
 
-        .attribute-button[disabled] {
-            background-color: #ccc;
-            cursor: not-allowed;
-        }
-
         .points-remaining {
             margin: 20px;
             font-size: 1em;
             color: #007BFF;
-        }
-
-        .name-input {
-            margin: 20px;
-        }
-
-        .navigation-buttons {
-            margin-top: 30px;
         }
 
         .button {
@@ -89,6 +81,11 @@
 
         .button:hover {
             background-color: #0056b3;
+        }
+
+        .button[disabled] {
+            background-color: #ccc;
+            cursor: not-allowed;
         }
     </style>
 </head>
@@ -128,19 +125,19 @@
             </div>
         </div>
         <div class="attribute">
-            <label for="wisdom">Wisdom</label>
+            <label for="endurance">Endurance</label>
             <div class="button-group">
-                <button class="attribute-button" id="decrease-wisdom">-</button>
-                <input type="number" id="wisdom" value="0" readonly style="width: 40px; text-align: center;">
-                <button class="attribute-button" id="increase-wisdom">+</button>
+                <button class="attribute-button" id="decrease-endurance">-</button>
+                <input type="number" id="endurance" value="0" readonly style="width: 40px; text-align: center;">
+                <button class="attribute-button" id="increase-endurance">+</button>
             </div>
         </div>
         <div class="attribute">
-            <label for="charisma">Charisma</label>
+            <label for="constitution">Constitution</label>
             <div class="button-group">
-                <button class="attribute-button" id="decrease-charisma">-</button>
-                <input type="number" id="charisma" value="0" readonly style="width: 40px; text-align: center;">
-                <button class="attribute-button" id="increase-charisma">+</button>
+                <button class="attribute-button" id="decrease-constitution">-</button>
+                <input type="number" id="constitution" value="0" readonly style="width: 40px; text-align: center;">
+                <button class="attribute-button" id="increase-constitution">+</button>
             </div>
         </div>
     </div>
@@ -148,6 +145,8 @@
     <div class="navigation-buttons">
         <button class="button" id="backstoryButton">Go to Backstory</button>
         <button class="button" id="skillsButton">Go to Skills</button>
+        <button class="button" id="resetButton">Reset</button>
+        <button class="button" id="startGameButton" disabled>Start Game</button> <!-- New Start Game button -->
     </div>
 
     <script>
@@ -159,13 +158,15 @@
                 strength: 0,
                 dexterity: 0,
                 intelligence: 0,
-                wisdom: 0,
-                charisma: 0
+                endurance: 0,
+                constitution: 0
             };
 
             const pointsRemainingDisplay = document.getElementById('pointsRemaining');
             const backstoryButton = document.getElementById('backstoryButton');
             const skillsButton = document.getElementById('skillsButton');
+            const resetButton = document.getElementById('resetButton'); 
+            const startGameButton = document.getElementById('startGameButton'); // Start Game button reference
             const nameInput = document.getElementById('characterName');
 
             function updatePoints(attribute, change) {
@@ -175,7 +176,33 @@
                     document.getElementById(attribute).value = attributes[attribute];
                     pointsRemainingDisplay.textContent = pointsRemaining;
                     saveCharacterData();
+                    checkAllConditions(); // Check conditions after each update
                 }
+            }
+
+            function resetCharacter() {
+                document.body.classList.add('fade-out'); // Add fade-out class
+                setTimeout(() => {
+                    localStorage.removeItem('character'); // Clear stored data
+                    pointsRemaining = pointsTotal;
+                    pointsRemainingDisplay.textContent = pointsRemaining;
+                    nameInput.value = '';
+                    for (let key in attributes) {
+                        attributes[key] = 0;
+                        document.getElementById(key).value = 0;
+                    }
+                    document.body.classList.remove('fade-out'); // Remove fade-out class after reset
+                    checkAllConditions(); // Check conditions after reset
+                }, 500); // Delay to allow fade-out effect
+            }
+
+            function checkAllConditions() {
+                const savedCharacter = JSON.parse(localStorage.getItem('character')) || {};
+                const allPointsUsed = pointsRemaining === 0;
+                const hasName = nameInput.value.trim() !== '';
+                const hasBackstory = savedCharacter.backstory && savedCharacter.backstory.trim() !== '';
+
+                startGameButton.disabled = !(allPointsUsed && hasName && hasBackstory); // Enable button if all conditions are met
             }
 
             document.getElementById('increase-strength').addEventListener('click', () => updatePoints('strength', 1));
@@ -184,12 +211,20 @@
             document.getElementById('decrease-dexterity').addEventListener('click', () => updatePoints('dexterity', -1));
             document.getElementById('increase-intelligence').addEventListener('click', () => updatePoints('intelligence', 1));
             document.getElementById('decrease-intelligence').addEventListener('click', () => updatePoints('intelligence', -1));
-            document.getElementById('increase-wisdom').addEventListener('click', () => updatePoints('wisdom', 1));
-            document.getElementById('decrease-wisdom').addEventListener('click', () => updatePoints('wisdom', -1));
-            document.getElementById('increase-charisma').addEventListener('click', () => updatePoints('charisma', 1));
-            document.getElementById('decrease-charisma').addEventListener('click', () => updatePoints('charisma', -1));
+            document.getElementById('increase-endurance').addEventListener('click', () => updatePoints('endurance', 1));
+            document.getElementById('decrease-endurance').addEventListener('click', () => updatePoints('endurance', -1));
+            document.getElementById('increase-constitution').addEventListener('click', () => updatePoints('constitution', 1));
+            document.getElementById('decrease-constitution').addEventListener('click', () => updatePoints('constitution', -1));
 
-            nameInput.addEventListener('input', saveCharacterData);
+            resetButton.addEventListener('click', resetCharacter); // Add event listener to reset button
+            startGameButton.addEventListener('click', function () {
+                window.location.href = 'game.html'; // Redirect to the game.html page
+            });
+
+            nameInput.addEventListener('input', function () {
+                saveCharacterData();
+                checkAllConditions(); // Check conditions on name input
+            });
 
             // Load saved character data
             const savedCharacter = JSON.parse(localStorage.getItem('character')) || {};
@@ -220,6 +255,9 @@
             skillsButton.addEventListener('click', function () {
                 window.location.href = 'skills.html';
             });
+
+            // Initial check on page load
+            checkAllConditions();
         });
     </script>
 </body>

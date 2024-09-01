@@ -9,6 +9,11 @@
             font-family: Arial, sans-serif;
             padding: 20px;
             text-align: center;
+            transition: opacity 0.5s ease; /* Animation for fade effect */
+        }
+
+        .fade-out {
+            opacity: 0; /* Fades out when the reset is triggered */
         }
 
         .skills-container {
@@ -107,15 +112,29 @@
         <div class="skill-option" id="skill46">Poison Crafting</div>
         <div class="skill-option" id="skill47">Trap Setting</div>
         <div class="skill-option" id="skill48">Mind Control</div>
-
     </div>
 
     <button class="confirm-button" id="confirmSkillsButton" disabled>Confirm Skills</button>
+    <button class="confirm-button" id="resetButton">Reset</button> <!-- New Reset button -->
 
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             const selectedSkills = new Set();
             const confirmButton = document.getElementById('confirmSkillsButton');
+            const resetButton = document.getElementById('resetButton'); // New Reset button reference
+
+            function resetCharacter() {
+                document.body.classList.add('fade-out'); // Add fade-out class
+                setTimeout(() => {
+                    localStorage.removeItem('character'); // Clear stored data
+                    selectedSkills.clear();
+                    document.querySelectorAll('.skill-option').forEach(option => {
+                        option.classList.remove('selected');
+                    });
+                    confirmButton.disabled = true;
+                    document.body.classList.remove('fade-out'); // Remove fade-out class after reset
+                }, 500); // Delay to allow fade-out effect
+            }
 
             // Load saved character data
             const savedCharacter = JSON.parse(localStorage.getItem('character')) || {};
@@ -152,9 +171,11 @@
                 localStorage.setItem('character', JSON.stringify({ ...savedCharacter, skills: Array.from(selectedSkills) }));
             }
 
+            resetButton.addEventListener('click', resetCharacter); // Add event listener to reset button
+
             confirmButton.addEventListener('click', function () {
                 alert(`You have selected ${selectedSkills.size} skill(s): ${Array.from(selectedSkills).map(id => document.getElementById(id).textContent).join(', ')}`);
-                window.location.href = 'attributes.html'; // Redirect back to the attributes page
+                window.location.href = 'attributes.html';
             });
         });
     </script>
