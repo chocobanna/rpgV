@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RPG Game - Start</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            text-align: center;
+            background-color: #f5f5f5;
+            transition: background-color 0.5s ease;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        .character-info {
+            margin-top: 20px;
+            padding: 20px;
+            border: 2px solid #007BFF;
+            border-radius: 10px;
+            background-color: #fff;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .character-info h2 {
+            margin-top: 0;
+            color: #007BFF;
+        }
+
+        .character-info p {
+            margin: 5px 0;
+        }
+
+        .start-adventure {
+            margin-top: 30px;
+            padding: 10px 20px;
+            font-size: 1em;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .start-adventure:hover {
+            background-color: #218838;
+        }
+
+        /* CSS for Card Container */
+        .card-container, .job-card-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            padding: 20px;
+            justify-content: center;
+        }
+
+        /* CSS for Individual Card */
+        .card, .job-card {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            width: 150px; /* Reduced width */
+            overflow: hidden;
+            text-align: center;
+            transition: transform 0.2s ease-in-out, border 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+            cursor: pointer; /* Pointer cursor on hover */
+        }
+
+        .card:hover, .job-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .card.selected, .job-card.selected {
+            border: 2px solid #007BFF; /* Outline for selected card */
+            background-color: #e0f0ff; /* Light blue background for selected card */
+            transform: scale(1.05); /* Slight zoom effect for selected card */
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .card img, .job-card img {
+            width: 100%;
+            height: auto;
+        }
+
+        .card-content, .job-card-content {
+            padding: 10px; /* Reduced padding */
+        }
+
+        .card-title, .job-card-title {
+            font-size: 1.2em; /* Smaller font size */
+            margin-bottom: 5px; /* Reduced margin */
+        }
+
+        .card-description, .job-card-description {
+            color: #666;
+            font-size: 0.8em; /* Smaller font size */
+        }
+
+        /* Style for the checkbox */
+        .checkbox-container {
+            margin-top: 5px;
+        }
+
+        .checkbox-container label {
+            margin-left: 5px;
+            font-size: 0.8em; /* Smaller font size */
+        }
+
+        /* Confirm Button */
+        .confirm-button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 1em;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            transition: background-color 0.3s ease;
+        }
+
+        .confirm-button:hover {
+            background-color: #0056b3;
+        }
+
+        .confirm-button[disabled] {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <h1>Welcome to the Adventure!</h1>
+    
+    <!-- Character Information -->
+    <div class="character-info" id="characterInfo">
+        <h2>Your Character</h2>
+        <p><strong>Name:</strong> <span id="characterName">Loading...</span></p>
+        <p><strong>Backstory:</strong> <span id="characterBackstory">Loading...</span></p>
+        <p><strong>Attributes:</strong></p>
+        <ul id="attributeList"></ul>
+    </div>
+
+    <!-- Race Selection -->
+    <h2>Select Your Race</h2>
+    <div class="card-container" id="cardContainer">
+        <!-- Race cards will be dynamically added here -->
+    </div>
+
+    <button class="confirm-button" id="confirmRaceButton">Confirm Race Selection</button>
+
+    <!-- Job Selection -->
+    <h2>Select Your Job</h2>
+    <div class="job-card-container" id="jobCardContainer">
+        <!-- Job cards will be dynamically added here -->
+    </div>
+
+    <button class="confirm-button" id="confirmJobButton">Confirm Job Selection</button>
+
+    <button class="start-adventure" id="startAdventureButton" disabled>Start Your Adventure</button>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Load character data from localStorage
+            const savedCharacter = JSON.parse(localStorage.getItem('character')) || {};
+            const characterName = savedCharacter.name || 'Unknown';
+            const characterBackstoryId = savedCharacter.backstory || 'Unknown';
+
+            // Fetch the backstory text based on ID
+            const backstoryTexts = {
+                backstory1: "Orphaned at a Young Age: You grew up in a bustling city, learning to survive on the streets.",
+                backstory2: "Noble Heritage: Born into a wealthy family, you received the finest education and training.",
+                backstory3: "Mysterious Stranger: Little is known about your past. Some say you appeared out of nowhere.",
+                backstory4: "Desert Wanderer: Having grown up in the harsh deserts, you are resilient and resourceful.",
+                backstory5: "Arcane Scholar: You spent years studying ancient texts and mastering the arcane arts.",
+                backstory6: "Outcast from a Distant Land: Banished from your homeland, you seek redemption.",
+                backstory7: "Seafaring Adventurer: Born on the high seas, you have sailed across the oceans.",
+                backstory8: "Mountain Hermit: Living in isolation has taught you the secrets of nature."
+            };
+
+            const characterBackstory = backstoryTexts[characterBackstoryId] || "Unknown";
+
+            // Display character data
+            document.getElementById('characterName').textContent = characterName;
+            document.getElementById('characterBackstory').textContent = characterBackstory;
+
+            // Populate attribute list
+            const attributes = savedCharacter.attributes || {};
+            const attributeList = document.getElementById('attributeList');
+            Object.keys(attributes).forEach(attr => {
+                const li = document.createElement('li');
+                li.textContent = `${attr.charAt(0).toUpperCase() + attr.slice(1)}: ${attributes[attr]}`;
+                attributeList.appendChild(li);
+            });
+
+            // Race Data and Dynamic Creation
+            const racesData = [
+                { race: "Elf", description: "Elves are known for their grace and magic.", imageUrl: "https://via.placeholder.com/150x100", isHighVersion: false },
+                { race: "Orc", description: "Orcs are powerful and warlike.", imageUrl: "https://via.placeholder.com/150x100", isHighVersion: false },
+                { race: "Dwarf", description: "Dwarves are strong and skilled miners.", imageUrl: "https://via.placeholder.com/150x100", isHighVersion: false },
+                { race: "Human", description: "Humans are versatile and adaptive.", imageUrl: "https://via.placeholder.com/150x100", isHighVersion: false },
+                { race: "Troll", description: "Trolls are large, fearsome creatures.", imageUrl: "https://via.placeholder.com/150x100", isHighVersion: false }
+            ];
+
+            let selectedRaceCard = null;
+
+            function addRaceCard(race, description, imageUrl, isHighVersion) {
+                const cardContainer = document.getElementById('cardContainer');
+
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.addEventListener('click', function () {
+                    if (selectedRaceCard) selectedRaceCard.classList.remove('selected');
+                    card.classList.add('selected');
+                    selectedRaceCard = card;
+                    localStorage.setItem('selectedRace', race);
+                    checkSelections(); // Check if both race and job are selected
+                });
+
+                const img = document.createElement('img');
+                img.src = imageUrl;
+                img.alt = `${race} Image`;
+
+                const cardContent = document.createElement('div');
+                cardContent.className = 'card-content';
+
+                const cardTitle = document.createElement('h2');
+                cardTitle.className = 'card-title';
+                cardTitle.textContent = isHighVersion ? `High ${race}` : race;
+
+                const cardDescription = document.createElement('p');
+                cardDescription.className = 'card-description';
+                cardDescription.textContent = description;
+
+                const checkboxContainer = document.createElement('div');
+                checkboxContainer.className = 'checkbox-container';
+
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.id = `high-${race}`;
+                checkbox.checked = isHighVersion;
+                checkbox.addEventListener('change', function () {
+                    cardTitle.textContent = this.checked ? `High ${race}` : race;
+                });
+
+                const checkboxLabel = document.createElement('label');
+                checkboxLabel.setAttribute('for', `high-${race}`);
+                checkboxLabel.textContent = 'High Version';
+
+                checkboxContainer.appendChild(checkbox);
+                checkboxContainer.appendChild(checkboxLabel);
+
+                cardContent.appendChild(cardTitle);
+                cardContent.appendChild(cardDescription);
+                cardContent.appendChild(checkboxContainer);
+
+                card.appendChild(img);
+                card.appendChild(cardContent);
+
+                cardContainer.appendChild(card);
+            }
+
+            racesData.forEach(race => addRaceCard(race.race, race.description, race.imageUrl, race.isHighVersion));
+
+            const savedRace = localStorage.getItem('selectedRace');
+            if (savedRace) {
+                const savedCard = Array.from(document.getElementsByClassName('card')).find(card => card.querySelector('.card-title').textContent.includes(savedRace));
+                if (savedCard) {
+                    savedCard.classList.add('selected');
+                    selectedRaceCard = savedCard;
+                }
+            }
+
+            document.getElementById('confirmRaceButton').addEventListener('click', function () {
+                if (selectedRaceCard) {
+                    alert('Race selected: ' + localStorage.getItem('selectedRace'));
+                } else {
+                    alert('Please select a race before confirming.');
+                }
+            });
+
+            // Job Data and Dynamic Creation
+            const jobsData = [
+                { job: "Warrior", description: "Strong and brave fighters.", imageUrl: "https://via.placeholder.com/150x100" },
+                { job: "Mage", description: "Masters of magical arts.", imageUrl: "https://via.placeholder.com/150x100" },
+                { job: "Archer", description: "Expert marksmen with a bow.", imageUrl: "https://via.placeholder.com/150x100" },
+                { job: "Rogue", description: "Stealthy and cunning.", imageUrl: "https://via.placeholder.com/150x100" },
+                { job: "Cleric", description: "Healers and protectors.", imageUrl: "https://via.placeholder.com/150x100" },
+                { job: "Paladin", description: "Holy warriors with divine powers.", imageUrl: "https://via.placeholder.com/150x100" },
+                { job: "Bard", description: "Charismatic performers with magic.", imageUrl: "https://via.placeholder.com/150x100" },
+                { job: "Necromancer", description: "Dark mages commanding the undead.", imageUrl: "https://via.placeholder.com/150x100" },
+                { job: "Druid", description: "Nature's guardians with shapeshifting abilities.", imageUrl: "https://via.placeholder.com/150x100" },
+                { job: "Monk", description: "Martial artists with spiritual powers.", imageUrl: "https://via.placeholder.com/150x100" },
+                { job: "Sorcerer", description: "Born with innate magical abilities.", imageUrl: "https://via.placeholder.com/150x100" },
+                { job: "Ranger", description: "Wilderness experts with animal companions.", imageUrl: "https://via.placeholder.com/150x100" },
+                { job: "Warlock", description: "Dealers of dark pacts for power.", imageUrl: "https://via.placeholder.com/150x100" },
+                { job: "Alchemist", description: "Masters of potions and transmutations.", imageUrl: "https://via.placeholder.com/150x100" },
+                { job: "Barbarian", description: "Fierce warriors with unstoppable rage.", imageUrl: "https://via.placeholder.com/150x100" },
+                { job: "Shaman", description: "Spiritual leaders with elemental magic.", imageUrl: "https://via.placeholder.com/150x100" },
+                { job: "Assassin", description: "Deadly killers skilled in stealth.", imageUrl: "https://via.placeholder.com/150x100" },
+                { job: "Berserker", description: "Uncontrolled fury in battle.", imageUrl: "https://via.placeholder.com/150x100" },
+                { job: "Knight", description: "Armored fighters upholding honor.", imageUrl: "https://via.placeholder.com/150x100" },
+                { job: "Enchanter", description: "Specialists in magical enchantments.", imageUrl: "https://via.placeholder.com/150x100" }
+            ];
+
+            let selectedJobCard = null;
+
+            function addJobCard(job, description, imageUrl) {
+                const cardContainer = document.getElementById('jobCardContainer');
+
+                const card = document.createElement('div');
+                card.className = 'job-card';
+                card.addEventListener('click', function () {
+                    if (selectedJobCard) selectedJobCard.classList.remove('selected');
+                    card.classList.add('selected');
+                    selectedJobCard = card;
+                    localStorage.setItem('selectedJob', job);
+                    checkSelections(); // Check if both race and job are selected
+                });
+
+                const img = document.createElement('img');
+                img.src = imageUrl;
+                img.alt = `${job} Image`;
+
+                const cardContent = document.createElement('div');
+                cardContent.className = 'job-card-content';
+
+                const cardTitle = document.createElement('h2');
+                cardTitle.className = 'job-card-title';
+                cardTitle.textContent = job;
+
+                const cardDescription = document.createElement('p');
+                cardDescription.className = 'job-card-description';
+                cardDescription.textContent = description;
+
+                cardContent.appendChild(cardTitle);
+                cardContent.appendChild(cardDescription);
+
+                card.appendChild(img);
+                card.appendChild(cardContent);
+
+                cardContainer.appendChild(card);
+            }
+
+            jobsData.forEach(job => addJobCard(job.job, job.description, job.imageUrl));
+
+            const savedJob = localStorage.getItem('selectedJob');
+            if (savedJob) {
+                const savedCard = Array.from(document.getElementsByClassName('job-card')).find(card => card.querySelector('.job-card-title').textContent.includes(savedJob));
+                if (savedCard) {
+                    savedCard.classList.add('selected');
+                    selectedJobCard = savedCard;
+                }
+            }
+
+            document.getElementById('confirmJobButton').addEventListener('click', function () {
+                if (selectedJobCard) {
+                    alert('Job selected: ' + localStorage.getItem('selectedJob'));
+                } else {
+                    alert('Please select a job before confirming.');
+                }
+            });
+
+            // Check if both race and job are selected
+            function checkSelections() {
+                if (localStorage.getItem('selectedRace') && localStorage.getItem('selectedJob')) {
+                    document.getElementById('startAdventureButton').disabled = false;
+                }
+            }
+
+            // Start Adventure button functionality
+            document.getElementById('startAdventureButton').addEventListener('click', function () {
+                window.location.href = 'town.html'; // Redirect to the town.html page
+            });
+
+            // Initial check for saved selections
+            checkSelections();
+        });
+    </script>
+</body>
+</html>
