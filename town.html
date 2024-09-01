@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Town Overview</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            text-align: center;
+            background-color: #f4f4f9;
+            color: #333;
+            transition: background-color 0.5s ease;
+            position: relative;
+            min-height: 100vh;
+        }
+
+        h1 {
+            color: #4a4a8f;
+        }
+
+        .town-description {
+            margin-top: 20px;
+            padding: 15px;
+            border: 2px solid #4a4a8f;
+            border-radius: 10px;
+            background-color: #ffffff;
+            max-width: 600px;
+            margin: 0 auto;
+            text-align: left;
+        }
+
+        .location-container {
+            margin-top: 30px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+        }
+
+        .location {
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            width: 180px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+
+        .location:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .location h2 {
+            margin: 10px 0;
+            font-size: 1.1em;
+            color: #4a4a8f;
+        }
+
+        .location p {
+            font-size: 0.9em;
+            color: #555;
+        }
+
+        .change-town-name {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 5px 10px;
+            font-size: 0.9em;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .change-town-name:hover {
+            background-color: #0056b3;
+        }
+
+        .money-display {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            font-size: 1.1em;
+            color: #4a4a8f;
+            background-color: #ffffff;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed;
+            z-index: 1; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            background-color: rgba(0, 0, 0, 0.5); /* Black background with opacity */
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            padding: 20px;
+            border: 1px solid #888;
+            border-radius: 10px;
+            width: 300px;
+            text-align: center;
+        }
+
+        .modal input {
+            width: calc(100% - 20px);
+            padding: 5px;
+            margin: 10px 0;
+        }
+
+        .modal button {
+            margin-top: 10px;
+            padding: 5px 10px;
+            font-size: 0.9em;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .modal button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1 id="townName">Welcome to the Town of Aeloria</h1>
+    <button class="change-town-name" id="changeTownNameButton">Change Town Name</button>
+
+    <!-- Town Description -->
+    <div class="town-description" id="townDescription">
+        <p>Loading town description...</p>
+    </div>
+
+    <!-- Locations in Town -->
+    <div class="location-container">
+        <div class="location" id="blacksmith">
+            <h2>Blacksmith</h2>
+            <p>Purchase weapons and armor.</p>
+        </div>
+        <div class="location" id="apothecary">
+            <h2>Apothecary</h2>
+            <p>Buy potions and herbs.</p>
+        </div>
+        <div class="location" id="guildHall">
+            <h2>Guild Hall</h2>
+            <p>Join the guild and embark on quests.</p>
+        </div>
+    </div>
+
+    <!-- Modal for changing town name -->
+    <div class="modal" id="townNameModal">
+        <div class="modal-content">
+            <h3>Change Town Name</h3>
+            <input type="text" id="newTownName" placeholder="Enter new town name" />
+            <button id="saveTownNameButton">Save</button>
+        </div>
+    </div>
+
+    <!-- Player's Gold Display -->
+    <div class="money-display">Your Gold: <span id="playerGold">100</span></div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Possible town names
+            const townNames = ["Aeloria", "Brindhaven", "Eldoria", "Frostvale", "Goldcrest", "Ravenwood", "Stormholme", "Thornfield", "Windermere", "Yorevale"];
+
+            // Fetch the player's selected race from localStorage
+            const selectedRace = localStorage.getItem('selectedRace') || 'Human';
+
+            // Generate a random town name if not already saved
+            function generateRandomTownName() {
+                return townNames[Math.floor(Math.random() * townNames.length)];
+            }
+
+            let townName = localStorage.getItem('townName') || generateRandomTownName();
+            document.getElementById('townName').textContent = `Welcome to the Town of ${townName}`;
+
+            // Save the town name to localStorage
+            localStorage.setItem('townName', townName);
+
+            // Town descriptions based on race
+            const townDescriptions = {
+                Elf: `The town of ${townName} is a mystical place filled with enchanting forests and elegant architecture. Elves have long thrived here, bringing their magic and wisdom to the town's vibrant culture.`,
+                Orc: `The town of ${townName} is one of strength and resilience. The orcs have transformed this once tranquil village into a fortress, where might and honor are highly valued.`,
+                Dwarf: `In the town of ${townName}, the dwarves have constructed grand underground halls and tunnels. The clinking of hammers and the smell of metalwork fill the air as they shape the town with their craftsmanship.`,
+                Human: `The town of ${townName} is a diverse place where humans bring their versatility and adaptability. It is a melting pot of cultures, bustling with trade and diplomatic activity.`,
+                Troll: `The town of ${townName}, with its tall, sturdy walls, now stands as a haven for trolls. The town has adapted to their fearsome presence, emphasizing strength and unity among its inhabitants.`
+            };
+
+            // Display the description based on the selected race
+            const descriptionElement = document.getElementById('townDescription');
+            descriptionElement.innerHTML = `<p>${townDescriptions[selectedRace]}</p>`;
+
+            // Load player's gold from localStorage
+            let playerGold = parseInt(localStorage.getItem('playerGold')) || 100;
+            document.getElementById('playerGold').textContent = playerGold;
+
+            // Handle location navigation
+            document.getElementById('blacksmith').addEventListener('click', function () {
+                window.location.href = 'blacksmith.html';
+            });
+
+            document.getElementById('apothecary').addEventListener('click', function () {
+                window.location.href = 'apothecary.html';
+            });
+
+            document.getElementById('guildHall').addEventListener('click', function () {
+                window.location.href = 'guildhall.html';
+            });
+
+            // Show modal for changing town name
+            document.getElementById('changeTownNameButton').addEventListener('click', function () {
+                document.getElementById('townNameModal').style.display = 'flex';
+            });
+
+            // Save the new town name
+            document.getElementById('saveTownNameButton').addEventListener('click', function () {
+                const newTownName = document.getElementById('newTownName').value.trim();
+                if (newTownName) {
+                    townName = newTownName;
+                    document.getElementById('townName').textContent = `Welcome to the Town of ${townName}`;
+                    localStorage.setItem('townName', townName);
+
+                    // Update the town description
+                    descriptionElement.innerHTML = `<p>${townDescriptions[selectedRace].replace(/\b[A-Z][a-z]*\b/, townName)}</p>`;
+                }
+                document.getElementById('townNameModal').style.display = 'none';
+            });
+        });
+    </script>
+</body>
+</html>
