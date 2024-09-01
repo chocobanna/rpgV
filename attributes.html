@@ -9,14 +9,9 @@
             font-family: Arial, sans-serif;
             padding: 20px;
             text-align: center;
-            transition: opacity 0.5s ease; /* Animation for fade effect */
         }
 
-        .fade-out {
-            opacity: 0; /* Fades out when the reset is triggered */
-        }
-
-        .attribute-container, .name-input, .navigation-buttons {
+        .attribute-container {
             margin-top: 20px;
             display: flex;
             justify-content: center;
@@ -61,10 +56,23 @@
             background-color: #0056b3;
         }
 
+        .attribute-button[disabled] {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
         .points-remaining {
             margin: 20px;
             font-size: 1em;
             color: #007BFF;
+        }
+
+        .name-input {
+            margin: 20px;
+        }
+
+        .navigation-buttons {
+            margin-top: 30px;
         }
 
         .button {
@@ -81,6 +89,22 @@
 
         .button:hover {
             background-color: #0056b3;
+        }
+
+        .start-game-button {
+            background-color: #28a745;
+        }
+
+        .start-game-button:hover {
+            background-color: #218838;
+        }
+
+        .reset-button {
+            background-color: #DC3545;
+        }
+
+        .reset-button:hover {
+            background-color: #C82333;
         }
 
         .button[disabled] {
@@ -145,8 +169,8 @@
     <div class="navigation-buttons">
         <button class="button" id="backstoryButton">Go to Backstory</button>
         <button class="button" id="skillsButton">Go to Skills</button>
-        <button class="button" id="resetButton">Reset</button>
-        <button class="button" id="startGameButton" disabled>Start Game</button> <!-- New Start Game button -->
+        <button class="button reset-button" id="resetButton">Reset</button>
+        <button class="button start-game-button" id="startGameButton" disabled>Start Game</button>
     </div>
 
     <script>
@@ -165,9 +189,21 @@
             const pointsRemainingDisplay = document.getElementById('pointsRemaining');
             const backstoryButton = document.getElementById('backstoryButton');
             const skillsButton = document.getElementById('skillsButton');
-            const resetButton = document.getElementById('resetButton'); 
-            const startGameButton = document.getElementById('startGameButton'); // Start Game button reference
+            const resetButton = document.getElementById('resetButton');
+            const startGameButton = document.getElementById('startGameButton');
             const nameInput = document.getElementById('characterName');
+
+            // Define initial money amounts based on backstory
+            const backstoryMoney = {
+                backstory1: 50,   // Orphaned at a Young Age
+                backstory2: 200,  // Noble Heritage
+                backstory3: 100,  // Mysterious Stranger
+                backstory4: 75,   // Desert Wanderer
+                backstory5: 150,  // Arcane Scholar
+                backstory6: 60,   // Outcast from a Distant Land
+                backstory7: 90,   // Seafaring Adventurer
+                backstory8: 80    // Mountain Hermit
+            };
 
             function updatePoints(attribute, change) {
                 if (pointsRemaining - change >= 0 && attributes[attribute] + change >= 0 && attributes[attribute] + change <= 20) {
@@ -176,33 +212,8 @@
                     document.getElementById(attribute).value = attributes[attribute];
                     pointsRemainingDisplay.textContent = pointsRemaining;
                     saveCharacterData();
-                    checkAllConditions(); // Check conditions after each update
+                    checkAllConditions();
                 }
-            }
-
-            function resetCharacter() {
-                document.body.classList.add('fade-out'); // Add fade-out class
-                setTimeout(() => {
-                    localStorage.removeItem('character'); // Clear stored data
-                    pointsRemaining = pointsTotal;
-                    pointsRemainingDisplay.textContent = pointsRemaining;
-                    nameInput.value = '';
-                    for (let key in attributes) {
-                        attributes[key] = 0;
-                        document.getElementById(key).value = 0;
-                    }
-                    document.body.classList.remove('fade-out'); // Remove fade-out class after reset
-                    checkAllConditions(); // Check conditions after reset
-                }, 500); // Delay to allow fade-out effect
-            }
-
-            function checkAllConditions() {
-                const savedCharacter = JSON.parse(localStorage.getItem('character')) || {};
-                const allPointsUsed = pointsRemaining === 0;
-                const hasName = nameInput.value.trim() !== '';
-                const hasBackstory = savedCharacter.backstory && savedCharacter.backstory.trim() !== '';
-
-                startGameButton.disabled = !(allPointsUsed && hasName && hasBackstory); // Enable button if all conditions are met
             }
 
             document.getElementById('increase-strength').addEventListener('click', () => updatePoints('strength', 1));
@@ -216,14 +227,9 @@
             document.getElementById('increase-constitution').addEventListener('click', () => updatePoints('constitution', 1));
             document.getElementById('decrease-constitution').addEventListener('click', () => updatePoints('constitution', -1));
 
-            resetButton.addEventListener('click', resetCharacter); // Add event listener to reset button
-            startGameButton.addEventListener('click', function () {
-                window.location.href = 'game.html'; // Redirect to the game.html page
-            });
-
-            nameInput.addEventListener('input', function () {
+            nameInput.addEventListener('input', function() {
                 saveCharacterData();
-                checkAllConditions(); // Check conditions on name input
+                checkAllConditions();
             });
 
             // Load saved character data
@@ -243,10 +249,36 @@
             function saveCharacterData() {
                 const characterData = {
                     name: nameInput.value.trim(),
-                    attributes
+                    attributes,
+                    money: localStorage.getItem('playerGold') || 100
                 };
                 localStorage.setItem('character', JSON.stringify(characterData));
             }
+
+            function resetAttributes() {
+                // Reset attributes and points
+                pointsRemaining = pointsTotal;
+                Object.keys(attributes).forEach(attr => {
+                    attributes[attr] = 0;
+                    document.getElementById(attr).value = 0;
+                });
+                pointsRemainingDisplay.textContent = pointsRemaining;
+
+                // Reset character name
+                nameInput.value = '';
+
+                // Reset money based on selected backstory
+                const selectedBackstory = savedCharacter.backstory || 'backstory1';
+                const initialMoney = backstoryMoney[selectedBackstory] || 100;
+                localStorage.setItem('playerGold', initialMoney);
+                alert(`Money has been reset to ${initialMoney} gold based on your backstory.`);
+
+                // Save character data
+                saveCharacterData();
+                checkAllConditions();
+            }
+
+            resetButton.addEventListener('click', resetAttributes);
 
             backstoryButton.addEventListener('click', function () {
                 window.location.href = 'backstory.html';
@@ -256,7 +288,19 @@
                 window.location.href = 'skills.html';
             });
 
-            // Initial check on page load
+            startGameButton.addEventListener('click', function () {
+                window.location.href = 'game.html';
+            });
+
+            function checkAllConditions() {
+                const allPointsDistributed = pointsRemaining === 0;
+                const hasName = nameInput.value.trim() !== '';
+                const hasBackstory = localStorage.getItem('character') && JSON.parse(localStorage.getItem('character')).backstory;
+
+                startGameButton.disabled = !(allPointsDistributed && hasName && hasBackstory);
+            }
+
+            // Initial check to enable/disable the Start Game button
             checkAllConditions();
         });
     </script>
