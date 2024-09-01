@@ -164,6 +164,10 @@
             <h2>Guild Hall</h2>
             <p>Join the guild and embark on quests.</p>
         </div>
+        <div class="location" id="dungeon">
+            <h2>Level 1 Dungeon</h2>
+            <p>Explore the dungeon and find treasures.</p>
+        </div>
     </div>
 
     <!-- Modal for changing town name -->
@@ -227,7 +231,11 @@
                 window.location.href = 'guildhall.html';
             });
 
-            // Show modal for changing town name
+            document.getElementById('dungeon').addEventListener('click', function () {
+                window.location.href = 'dungeon_01.html';
+            });
+
+            // Open the modal to change the town name
             document.getElementById('changeTownNameButton').addEventListener('click', function () {
                 document.getElementById('townNameModal').style.display = 'flex';
             });

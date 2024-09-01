@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Level 1 Dungeon</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            text-align: center;
+            background-color: #f4f4f9;
+            color: #333;
+            transition: background-color 0.5s ease;
+            position: relative;
+            min-height: 100vh;
+        }
+
+        h1 {
+            color: #4a4a8f;
+        }
+
+        .back-to-town {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            padding: 5px 10px;
+            font-size: 0.9em;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .back-to-town:hover {
+            background-color: #0056b3;
+        }
+
+        .dungeon-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .encounter {
+            background-color: #ffffff;
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 600px;
+            text-align: left;
+        }
+
+        .encounter h3 {
+            margin-top: 0;
+        }
+
+        .action-button {
+            padding: 5px 10px;
+            font-size: 0.9em;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin: 5px;
+        }
+
+        .action-button:hover {
+            background-color: #218838;
+        }
+
+        .money-display, .health-display {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            font-size: 1.1em;
+            color: #4a4a8f;
+            background-color: #ffffff;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            right: 20px;
+        }
+
+        .health-display {
+            right: 160px;
+        }
+    </style>
+</head>
+<body>
+    <button class="back-to-town" onclick="window.location.href='town.html'">Back to Town</button>
+    <h1>Level 1 Dungeon</h1>
+
+    <div class="dungeon-container" id="dungeonContainer">
+        <!-- Encounters will be dynamically populated here -->
+    </div>
+
+    <!-- Player's Health and Gold Display -->
+    <div class="health-display">Your Health: <span id="playerHealth">100</span></div>
+    <div class="money-display">Your Gold: <span id="playerGold">100</span></div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const playerHealthElement = document.getElementById('playerHealth');
+            const playerGoldElement = document.getElementById('playerGold');
+            let playerHealth = parseInt(localStorage.getItem('playerHealth')) || 100;
+            let playerGold = parseInt(localStorage.getItem('playerGold')) || 100;
+            playerHealthElement.textContent = playerHealth;
+            playerGoldElement.textContent = playerGold;
+
+            const dungeonContainer = document.getElementById('dungeonContainer');
+
+            const encounters = [
+                { type: "enemy", description: "A wild goblin appears!", healthChange: -10, goldReward: 20 },
+                { type: "trap", description: "You stepped on a trap! Arrows fly towards you.", healthChange: -15, goldReward: 0 },
+                { type: "enemy", description: "An orc warrior blocks your path!", healthChange: -20, goldReward: 50 },
+                { type: "trap", description: "A hidden pit opens beneath you!", healthChange: -25, goldReward: 0 },
+                { type: "treasure", description: "You find a hidden treasure chest!", healthChange: 0, goldReward: 100 }
+            ];
+
+            function populateEncounters() {
+                encounters.forEach((encounter, index) => {
+                    addEncounterToList(encounter, index);
+                });
+            }
+
+            function addEncounterToList(encounter, index) {
+                const encounterElement = document.createElement('div');
+                encounterElement.className = 'encounter';
+                encounterElement.innerHTML = `
+                    <h3>Encounter ${index + 1}: ${encounter.type === 'enemy' ? 'Enemy' : encounter.type === 'trap' ? 'Trap' : 'Treasure'}</h3>
+                    <p>${encounter.description}</p>
+                    <button class="action-button" onclick="handleEncounter(${index})">${encounter.type === 'enemy' ? 'Attack' : encounter.type === 'trap' ? 'Dodge' : 'Open'}</button>
+                `;
+                dungeonContainer.appendChild(encounterElement);
+            }
+
+            window.handleEncounter = function(index) {
+                const encounter = encounters[index];
+                if (encounter.type === 'enemy' || encounter.type === 'trap') {
+                    playerHealth += encounter.healthChange;
+                    if (playerHealth <= 0) {
+                        alert("You have been defeated! Game over.");
+                        playerHealth = 0;
+                        playerGoldElement.textContent = playerGold;
+                        localStorage.setItem('playerHealth', playerHealth);
+                        return;
+                    }
+                }
+                if (encounter.goldReward > 0) {
+                    playerGold += encounter.goldReward;
+                    alert(`You gained ${encounter.goldReward} gold!`);
+                }
+
+                playerHealthElement.textContent = playerHealth;
+                playerGoldElement.textContent = playerGold;
+                localStorage.setItem('playerHealth', playerHealth);
+                localStorage.setItem('playerGold', playerGold);
+
+                // Remove the encounter element from the dungeon
+                const encounterElements = dungeonContainer.querySelectorAll('.encounter');
+                encounterElements[index].remove();
+            };
+
+            populateEncounters();
+        });
+    </script>
+</body>
+</html>
